@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import NavigationBar from './components/NavigationBar';
 import Sidebar from './components/Sidebar';
 import TabBar from './components/TabBar';
+import FindInPage from './components/FindInPage';
+import DownloadManager from './components/DownloadManager';
 
 interface Bookmark {
   id: number;
@@ -33,6 +35,7 @@ const App: React.FC = () => {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [tabs, setTabs] = useState<Tab[]>([]);
+  const [showFindInPage, setShowFindInPage] = useState<boolean>(false);
 
   useEffect(() => {
     // Set up event listeners
@@ -68,6 +71,15 @@ const App: React.FC = () => {
 
     window.electronAPI.onTabUpdated((tabId: number, info: any) => {
       loadTabs();
+    });
+
+    // Listen for keyboard shortcuts
+    window.electronAPI.onShowFindInPage(() => {
+      setShowFindInPage(true);
+    });
+
+    window.electronAPI.onAddBookmarkRequest((url: string, title: string) => {
+      handleAddBookmark(url, title);
     });
 
     // Load initial data
@@ -107,9 +119,11 @@ const App: React.FC = () => {
     window.electronAPI.reload();
   };
 
-  const handleAddBookmark = async () => {
-    if (currentUrl && currentTitle) {
-      await window.electronAPI.addBookmark(currentUrl, currentTitle);
+  const handleAddBookmark = async (url?: string, title?: string) => {
+    const bookmarkUrl = url || currentUrl;
+    const bookmarkTitle = title || currentTitle;
+    if (bookmarkUrl && bookmarkTitle) {
+      await window.electronAPI.addBookmark(bookmarkUrl, bookmarkTitle);
       loadBookmarks();
     }
   };
@@ -169,6 +183,11 @@ const App: React.FC = () => {
         onCloseTab={handleCloseTab}
         onSwitchTab={handleSwitchTab}
       />
+      <FindInPage 
+        isVisible={showFindInPage} 
+        onClose={() => setShowFindInPage(false)} 
+      />
+      <DownloadManager />
       {showSidebar && (
         <Sidebar
           view={sidebarView}

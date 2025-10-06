@@ -40,6 +40,33 @@ export interface ElectronAPI {
   onTabClosed: (callback: (tabId: number) => void) => void;
   onTabSwitched: (callback: (tabId: number, url: string, title: string) => void) => void;
   onTabUpdated: (callback: (tabId: number, info: any) => void) => void;
+  
+  // Chrome-like features
+  zoomIn: () => Promise<void>;
+  zoomOut: () => Promise<void>;
+  zoomReset: () => Promise<void>;
+  getZoomLevel: () => Promise<number>;
+  findInPage: (text: string, options?: any) => Promise<void>;
+  stopFindInPage: (action?: 'clearSelection' | 'keepSelection' | 'activateSelection') => Promise<void>;
+  toggleDevTools: () => Promise<void>;
+  printPage: () => Promise<void>;
+  viewSource: () => Promise<void>;
+  openInBrowser: (url: string) => Promise<void>;
+  muteTab: (tabId: number) => Promise<boolean>;
+  getCanGoBack: () => Promise<boolean>;
+  getCanGoForward: () => Promise<boolean>;
+  
+  // Download events
+  onDownloadStarted: (callback: (info: any) => void) => void;
+  onDownloadProgress: (callback: (info: any) => void) => void;
+  onDownloadCompleted: (callback: (info: any) => void) => void;
+  onDownloadFailed: (callback: (fileName: string) => void) => void;
+  
+  // Keyboard shortcut events
+  onShowFindInPage: (callback: () => void) => void;
+  onFocusUrlBar: (callback: () => void) => void;
+  onAddBookmarkRequest: (callback: (url: string, title: string) => void) => void;
+  onShowClearDataDialog: (callback: () => void) => void;
 }
 
 declare global {

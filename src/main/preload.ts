@@ -45,4 +45,47 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onTabUpdated: (callback: (tabId: number, info: any) => void) => {
     ipcRenderer.on('tab-updated', (_event: any, tabId: number, info: any) => callback(tabId, info));
   },
+
+  // Chrome-like features
+  zoomIn: () => ipcRenderer.invoke('zoom-in'),
+  zoomOut: () => ipcRenderer.invoke('zoom-out'),
+  zoomReset: () => ipcRenderer.invoke('zoom-reset'),
+  getZoomLevel: () => ipcRenderer.invoke('get-zoom-level'),
+  findInPage: (text: string, options?: any) => ipcRenderer.invoke('find-in-page', text, options),
+  stopFindInPage: (action?: 'clearSelection' | 'keepSelection' | 'activateSelection') => ipcRenderer.invoke('stop-find-in-page', action),
+  toggleDevTools: () => ipcRenderer.invoke('toggle-devtools'),
+  printPage: () => ipcRenderer.invoke('print-page'),
+  viewSource: () => ipcRenderer.invoke('view-source'),
+  openInBrowser: (url: string) => ipcRenderer.invoke('open-in-browser', url),
+  muteTab: (tabId: number) => ipcRenderer.invoke('mute-tab', tabId),
+  getCanGoBack: () => ipcRenderer.invoke('get-can-go-back'),
+  getCanGoForward: () => ipcRenderer.invoke('get-can-go-forward'),
+
+  // Download events
+  onDownloadStarted: (callback: (info: any) => void) => {
+    ipcRenderer.on('download-started', (_event: any, info: any) => callback(info));
+  },
+  onDownloadProgress: (callback: (info: any) => void) => {
+    ipcRenderer.on('download-progress', (_event: any, info: any) => callback(info));
+  },
+  onDownloadCompleted: (callback: (info: any) => void) => {
+    ipcRenderer.on('download-completed', (_event: any, info: any) => callback(info));
+  },
+  onDownloadFailed: (callback: (fileName: string) => void) => {
+    ipcRenderer.on('download-failed', (_event: any, fileName: string) => callback(fileName));
+  },
+
+  // Keyboard shortcut events
+  onShowFindInPage: (callback: () => void) => {
+    ipcRenderer.on('show-find-in-page', () => callback());
+  },
+  onFocusUrlBar: (callback: () => void) => {
+    ipcRenderer.on('focus-url-bar', () => callback());
+  },
+  onAddBookmarkRequest: (callback: (url: string, title: string) => void) => {
+    ipcRenderer.on('add-bookmark-request', (_event: any, url: string, title: string) => callback(url, title));
+  },
+  onShowClearDataDialog: (callback: () => void) => {
+    ipcRenderer.on('show-clear-data-dialog', () => callback());
+  },
 });
