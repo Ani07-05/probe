@@ -442,11 +442,13 @@ function updateBrowserViewBounds() {
 
   try {
     const bounds = mainWindow.getBounds();
+    // Navigation bar (48px) + Tab bar (36px) = 84px
+    const topOffset = 84;
     browserView.setBounds({ 
       x: 0, 
-      y: 120, // Increased from 80 to make room for tabs
+      y: topOffset,
       width: bounds.width, 
-      height: bounds.height - 120 
+      height: bounds.height - topOffset 
     });
   } catch (error) {
     console.error('Error updating browser view bounds:', error);

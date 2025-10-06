@@ -21,14 +21,14 @@ body {
   background: #202124;
 }
 
-/* Navigation Bar - Chrome Dark Theme */
+/* Navigation Bar - Chrome Exact Design */
 .navigation-bar {
   height: 48px;
   background: #202124;
   display: flex;
   align-items: center;
-  padding: 0 8px;
-  gap: 6px;
+  padding: 0 12px;
+  gap: 8px;
   box-shadow: none;
   position: relative;
   z-index: 1000;
@@ -37,7 +37,8 @@ body {
 
 .nav-controls {
   display: flex;
-  gap: 5px;
+  gap: 2px;
+  align-items: center;
 }
 
 .nav-button {
@@ -53,6 +54,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
+}
+
+.nav-button svg {
+  width: 16px;
+  height: 16px;
+  display: block;
 }
 
 .nav-button:hover {
@@ -65,38 +73,73 @@ body {
 }
 
 .nav-button:disabled {
-  color: #5f6368;
+  opacity: 0.3;
   cursor: not-allowed;
+  pointer-events: none;
 }
 
-.nav-button:disabled:hover {
-  background: transparent;
+/* Back/Forward buttons - slightly different */
+.back-button,
+.forward-button {
+  width: 28px;
+  height: 28px;
 }
 
+.reload-button {
+  margin-left: 4px;
+}
+
+/* URL Form - Chrome Style */
 .url-form {
   flex: 1;
   display: flex;
   align-items: center;
   position: relative;
+  max-width: 800px;
+  margin: 0 8px;
+}
+
+.url-input-container {
+  width: 100%;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  background: #303134;
+  border-radius: 24px;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  padding: 0 12px;
+  gap: 8px;
+}
+
+.url-input-container:hover {
+  background: #3c4043;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+}
+
+.url-input-container:focus-within {
+  background: #303134;
+  border-color: #5f6368;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+}
+
+.lock-icon {
+  font-size: 14px;
+  color: #9aa0a6;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .url-input {
-  width: 100%;
-  height: 34px;
-  padding: 0 40px 0 40px;
+  flex: 1;
   border: none;
-  border-radius: 24px;
-  font-size: 14px;
-  background: #303134;
+  background: transparent;
   color: #e8eaed;
-  box-shadow: none;
-  transition: all 0.15s ease;
-}
-
-.url-input:focus {
+  font-size: 14px;
   outline: none;
-  background: #3c4043;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
 .url-input::placeholder {
@@ -108,21 +151,37 @@ body {
   color: #202124;
 }
 
+.star-button {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: #9aa0a6;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.star-button:hover {
+  background: #5f6368;
+  color: #e8eaed;
+}
+
 .loading-indicator {
-  position: absolute;
-  right: 12px;
+  width: 24px;
+  height: 24px;
   font-size: 16px;
   animation: spin 1s linear infinite;
   color: #8ab4f8;
-}
-
-.url-form::before {
-  content: '🔒';
-  position: absolute;
-  left: 12px;
-  font-size: 14px;
-  color: #9aa0a6;
-  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 @keyframes spin {
@@ -136,7 +195,26 @@ body {
 
 .nav-actions {
   display: flex;
-  gap: 5px;
+  gap: 4px;
+  align-items: center;
+  margin-left: auto;
+}
+
+.menu-button {
+  width: 32px;
+  height: 32px;
+}
+
+.profile-button {
+  width: 32px;
+  height: 32px;
+  padding: 4px;
+  margin-left: 4px;
+}
+
+.profile-button svg {
+  width: 24px;
+  height: 24px;
 }
 
 /* Tab Bar - Chrome Dark Theme */

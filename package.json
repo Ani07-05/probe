@@ -12,7 +12,10 @@
     "build:main": "webpack --config webpack.main.config.js --mode production",
     "build:preload": "webpack --config webpack.preload.config.js --mode production",
     "build:renderer": "webpack --config webpack.renderer.config.js --mode production",
-    "package": "npm run build && electron-builder"
+    "package": "npm run build && electron-builder",
+    "package:mac": "npm run build && electron-builder --mac",
+    "package:win": "npm run build && electron-builder --win",
+    "package:linux": "npm run build && electron-builder --linux"
   },
   "keywords": [
     "electron",
@@ -32,7 +35,7 @@
     "concurrently": "^8.2.1",
     "css-loader": "^6.8.1",
     "electron": "^27.0.0",
-    "electron-builder": "^24.6.4",
+    "electron-builder": "^24.13.3",
     "html-webpack-plugin": "^5.5.3",
     "style-loader": "^3.3.3",
     "ts-loader": "^9.5.0",
@@ -54,10 +57,35 @@
     },
     "files": [
       "dist/**/*",
-      "package.json"
+      "package.json",
+      "node_modules/**/*"
     ],
     "mac": {
-      "category": "public.app-category.utilities"
+      "category": "public.app-category.utilities",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "zip"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Network"
+    },
+    "dmg": {
+      "title": "Probe Browser"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     }
   }
 }
