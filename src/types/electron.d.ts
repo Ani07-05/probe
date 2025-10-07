@@ -67,6 +67,9 @@ export interface ElectronAPI {
   onFocusUrlBar: (callback: () => void) => void;
   onAddBookmarkRequest: (callback: (url: string, title: string) => void) => void;
   onShowClearDataDialog: (callback: () => void) => void;
+
+  // Window state events
+  onWindowStateChanged: (callback: (state: { maximized: boolean }) => void) => void;
 }
 
 declare global {

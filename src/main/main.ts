@@ -13,6 +13,12 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
+    title: '', // Remove window title to prevent "Probe Browser" from showing
+    titleBarStyle: 'hidden', // Hide title bar but keep traffic lights always visible
+    trafficLightPosition: { x: 16, y: 18 }, // Position traffic lights vertically centered in tab bar (36px height)
+    backgroundColor: '#202124', // Match dark theme background
+    fullscreenable: true, // Enable fullscreen
+    fullscreen: false, // Start in windowed mode
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -20,12 +26,21 @@ function createWindow() {
     },
   });
 
+  // Set empty title to prevent "Probe Browser" from appearing
+  mainWindow.setTitle('');
+
   // Load the React app
   if (process.env.NODE_ENV === 'development') {
     mainWindow.loadURL('http://localhost:3000');
   } else {
     mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
   }
+
+  // Keep title empty even after loading
+  mainWindow.on('page-title-updated', (event) => {
+    event.preventDefault();
+    mainWindow?.setTitle('');
+  });
 
   // Register keyboard shortcuts
   mainWindow.webContents.on('before-input-event', (event, input) => {
@@ -174,6 +189,34 @@ function createWindow() {
       updateBrowserViewBounds();
       resizeTimeout = null;
     }, 100);
+  });
+
+  // Handle maximize/unmaximize events
+  mainWindow.on('maximize', () => {
+    mainWindow?.webContents.send('window-state-changed', { maximized: true });
+  });
+
+  mainWindow.on('unmaximize', () => {
+    mainWindow?.webContents.send('window-state-changed', { maximized: false });
+  });
+
+  // Handle fullscreen events to ensure traffic lights remain visible
+  mainWindow.on('enter-full-screen', () => {
+    if (mainWindow) {
+      mainWindow.setFullScreenable(true);
+    }
+  });
+
+  mainWindow.on('leave-full-screen', () => {
+    if (mainWindow) {
+      mainWindow.setFullScreenable(true);
+    }
+  });
+
+  // Send initial state
+  mainWindow.webContents.once('did-finish-load', () => {
+    const isMaximized = mainWindow?.isMaximized() || false;
+    mainWindow?.webContents.send('window-state-changed', { maximized: isMaximized });
   });
 }
 

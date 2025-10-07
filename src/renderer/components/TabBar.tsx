@@ -12,9 +12,10 @@ interface TabBarProps {
   onNewTab: () => void;
   onCloseTab: (tabId: number) => void;
   onSwitchTab: (tabId: number) => void;
+  isMaximized: boolean;
 }
 
-const TabBar: React.FC<TabBarProps> = ({ tabs, onNewTab, onCloseTab, onSwitchTab }) => {
+const TabBar: React.FC<TabBarProps> = ({ tabs, onNewTab, onCloseTab, onSwitchTab, isMaximized }) => {
   const getTabTitle = (title: string, url: string) => {
     if (title && title !== url) return title;
     try {
@@ -26,7 +27,7 @@ const TabBar: React.FC<TabBarProps> = ({ tabs, onNewTab, onCloseTab, onSwitchTab
   };
 
   return (
-    <div className="tab-bar">
+    <div className={`tab-bar ${isMaximized ? 'maximized' : ''}`}>
       <div className="tabs-container">
         {tabs.map((tab) => (
           <div

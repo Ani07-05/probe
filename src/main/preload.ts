@@ -88,4 +88,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onShowClearDataDialog: (callback: () => void) => {
     ipcRenderer.on('show-clear-data-dialog', () => callback());
   },
+
+  // Window state events
+  onWindowStateChanged: (callback: (state: { maximized: boolean }) => void) => {
+    ipcRenderer.on('window-state-changed', (_event: any, state: { maximized: boolean }) => callback(state));
+  },
 });

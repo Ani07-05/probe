@@ -36,6 +36,7 @@ const App: React.FC = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [showFindInPage, setShowFindInPage] = useState<boolean>(false);
+  const [isMaximized, setIsMaximized] = useState<boolean>(false);
 
   useEffect(() => {
     // Set up event listeners
@@ -71,6 +72,11 @@ const App: React.FC = () => {
 
     window.electronAPI.onTabUpdated((tabId: number, info: any) => {
       loadTabs();
+    });
+
+    // Listen for window state changes
+    window.electronAPI.onWindowStateChanged((state: { maximized: boolean }) => {
+      setIsMaximized(state.maximized);
     });
 
     // Listen for keyboard shortcuts
@@ -166,6 +172,13 @@ const App: React.FC = () => {
 
   return (
     <div className="app">
+      <TabBar
+        tabs={tabs}
+        onNewTab={handleNewTab}
+        onCloseTab={handleCloseTab}
+        onSwitchTab={handleSwitchTab}
+        isMaximized={isMaximized}
+      />
       <NavigationBar
         currentUrl={currentUrl}
         isLoading={isLoading}
@@ -176,12 +189,6 @@ const App: React.FC = () => {
         onAddBookmark={handleAddBookmark}
         onToggleBookmarks={() => toggleSidebar('bookmarks')}
         onToggleHistory={() => toggleSidebar('history')}
-      />
-      <TabBar
-        tabs={tabs}
-        onNewTab={handleNewTab}
-        onCloseTab={handleCloseTab}
-        onSwitchTab={handleSwitchTab}
       />
       <FindInPage 
         isVisible={showFindInPage} 

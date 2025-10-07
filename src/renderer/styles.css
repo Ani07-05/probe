@@ -21,7 +21,7 @@ body {
   background: #202124;
 }
 
-/* Navigation Bar - Chrome Exact Design */
+/* Navigation Bar - Chrome Exact Design (Below Tabs) */
 .navigation-bar {
   height: 48px;
   background: #202124;
@@ -31,7 +31,7 @@ body {
   gap: 8px;
   box-shadow: none;
   position: relative;
-  z-index: 1000;
+  z-index: 999;
   border-bottom: 1px solid #3c4043;
 }
 
@@ -217,7 +217,7 @@ body {
   height: 24px;
 }
 
-/* Tab Bar - Chrome Dark Theme */
+/* Tab Bar - Chrome Dark Theme (Top) */
 .tab-bar {
   height: 36px;
   background: #202124;
@@ -227,8 +227,14 @@ body {
   overflow-y: hidden;
   box-shadow: none;
   position: relative;
-  z-index: 999;
-  padding: 0 4px;
+  z-index: 1000;
+  padding: 0 4px 0 80px; /* Left padding for macOS traffic lights */
+  border-bottom: 1px solid #3c4043;
+  -webkit-app-region: drag; /* Make tab bar draggable */
+}
+
+.tab-bar.maximized {
+  padding-left: 4px; /* Remove traffic light padding when maximized */
 }
 
 .tab-bar::-webkit-scrollbar {
@@ -241,6 +247,7 @@ body {
   height: 100%;
   gap: 2px;
   padding: 0 5px;
+  -webkit-app-region: no-drag; /* Make tabs clickable, not draggable */
 }
 
 .tab {
@@ -258,6 +265,7 @@ body {
   border: none;
   margin-right: 1px;
   position: relative;
+  -webkit-app-region: no-drag; /* Tabs are clickable */
 }
 
 .tab:hover {
@@ -337,6 +345,7 @@ body {
   justify-content: center;
   margin-left: 4px;
   font-weight: normal;
+  -webkit-app-region: no-drag; /* New tab button is clickable */
 }
 
 .new-tab-button:hover {
@@ -538,7 +547,7 @@ body {
 /* Find in Page - Dark Theme */
 .find-in-page {
   position: fixed;
-  top: 48px;
+  top: 84px;
   right: 15px;
   background: #292a2d;
   padding: 10px 15px;
