@@ -13,13 +13,19 @@ contextBridge.exposeInMainWorld('electronAPI', {
   deleteBookmark: (id: number) => ipcRenderer.invoke('delete-bookmark', id),
   getHistory: () => ipcRenderer.invoke('get-history'),
   clearHistory: () => ipcRenderer.invoke('clear-history'),
-  
+
   // Tab management
   newTab: (url?: string) => ipcRenderer.invoke('new-tab', url),
   closeTab: (tabId: number) => ipcRenderer.invoke('close-tab', tabId),
   switchTab: (tabId: number) => ipcRenderer.invoke('switch-tab', tabId),
   getTabs: () => ipcRenderer.invoke('get-tabs'),
-  
+  // Pin and group management
+  pinTab: (tabId: number) => ipcRenderer.invoke('pin-tab', tabId),
+  unpinTab: (tabId: number) => ipcRenderer.invoke('unpin-tab', tabId),
+  togglePinTab: (tabId: number) => ipcRenderer.invoke('toggle-pin-tab', tabId),
+  setTabGroup: (tabId: number, groupId: string | null) => ipcRenderer.invoke('set-tab-group', tabId, groupId),
+  getGroups: () => ipcRenderer.invoke('get-tab-groups'),
+
   // Event listeners
   onUrlChanged: (callback: (url: string, tabId: number) => void) => {
     ipcRenderer.on('url-changed', (_event: any, url: string, tabId: number) => callback(url, tabId));

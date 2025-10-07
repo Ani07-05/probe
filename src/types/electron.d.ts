@@ -19,7 +19,7 @@ export interface ElectronAPI {
     visited_at: Date;
   }>>;
   clearHistory: () => Promise<{ success: boolean }>;
-  
+
   // Tab management
   newTab: (url?: string) => Promise<number>;
   closeTab: (tabId: number) => Promise<void>;
@@ -29,8 +29,16 @@ export interface ElectronAPI {
     url: string;
     title: string;
     isActive: boolean;
+    isPinned?: boolean;
+    groupId?: string | null;
   }>>;
-  
+  // Pin and group management
+  pinTab: (tabId: number) => Promise<void>;
+  unpinTab: (tabId: number) => Promise<void>;
+  togglePinTab: (tabId: number) => Promise<boolean>;
+  setTabGroup: (tabId: number, groupId: string | null) => Promise<void>;
+  getGroups: () => Promise<Array<{ id: string; name: string; color: string }>>;
+
   // Event listeners
   onUrlChanged: (callback: (url: string, tabId: number) => void) => void;
   onTitleUpdated: (callback: (title: string, tabId: number) => void) => void;
@@ -40,7 +48,7 @@ export interface ElectronAPI {
   onTabClosed: (callback: (tabId: number) => void) => void;
   onTabSwitched: (callback: (tabId: number, url: string, title: string) => void) => void;
   onTabUpdated: (callback: (tabId: number, info: any) => void) => void;
-  
+
   // Chrome-like features
   zoomIn: () => Promise<void>;
   zoomOut: () => Promise<void>;
@@ -55,13 +63,13 @@ export interface ElectronAPI {
   muteTab: (tabId: number) => Promise<boolean>;
   getCanGoBack: () => Promise<boolean>;
   getCanGoForward: () => Promise<boolean>;
-  
+
   // Download events
   onDownloadStarted: (callback: (info: any) => void) => void;
   onDownloadProgress: (callback: (info: any) => void) => void;
   onDownloadCompleted: (callback: (info: any) => void) => void;
   onDownloadFailed: (callback: (fileName: string) => void) => void;
-  
+
   // Keyboard shortcut events
   onShowFindInPage: (callback: () => void) => void;
   onFocusUrlBar: (callback: () => void) => void;
