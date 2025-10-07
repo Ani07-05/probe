@@ -2,13 +2,6 @@
 
 A modern Electron-based web browser built with React, TypeScript, and MySQL.
 
-## 🎃 Hacktoberfest 2025
-
-We're participating in Hacktoberfest! Check out our [Hacktoberfest Issues](./HACKTOBERFEST_ISSUES.md) for contribution ideas, or read our [Contributing Guide](./CONTRIBUTING.md) to get started.
-
-[![Hacktoberfest](https://img.shields.io/badge/Hacktoberfest-2025-orange.svg)](./HACKTOBERFEST_ISSUES.md)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
-
 ## Features
 
 - 🌐 Full web browsing capabilities powered by Chromium
@@ -140,46 +133,8 @@ probe/
 
 ## Notes
 
-- The browser view is positioned below the navigation bar (84px from top)
+- The browser view is positioned below the navigation bar (80px from top)
 - All navigation events are automatically tracked in the history
-- Traffic lights are fully visible in windowed mode and accessible in fullscreen mode
-- Dark theme optimized for comfortable browsing
-
-## 🤝 Contributing
-
-We welcome contributions from developers of all skill levels! Here's how you can help:
-
-1. 🐛 **Report Bugs** - Found an issue? [Open a bug report](https://github.com/mrgear111/probe/issues/new?template=bug_report.md)
-2. 💡 **Suggest Features** - Have an idea? [Open a feature request](https://github.com/mrgear111/probe/issues/new?template=feature_request.md)
-3. 🎃 **Hacktoberfest** - Check our [Hacktoberfest Issues](./HACKTOBERFEST_ISSUES.md) for contribution ideas
-4. 📖 **Read the Guide** - See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines
-
-### Good First Issues
-
-Perfect for newcomers:
-- Add favicon display in tabs
-- Implement keyboard shortcuts documentation
-- Add light theme support
-- Improve context menu styling
-- Write unit tests
-
-See [HACKTOBERFEST_ISSUES.md](./HACKTOBERFEST_ISSUES.md) for the complete list!
-
-## 📜 License
-
-ISC License
-
-## 🙏 Contributors
-
-Thank you to all contributors who help make Probe Browser better!
-
-<!-- Add contributor images here -->
-
----
-
-**Star ⭐ this repo if you find it useful!**
-
-**Built with ❤️ for Hacktoberfest 2025**
 - URLs without protocols automatically get `https://` prepended
 - The database connection errors are logged to the console for debugging
 
