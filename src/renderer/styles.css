@@ -188,6 +188,7 @@ body {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -228,13 +229,16 @@ body {
   box-shadow: none;
   position: relative;
   z-index: 1000;
-  padding: 0 4px 0 80px; /* Left padding for macOS traffic lights */
+  padding: 0 4px 0 80px;
+  /* Left padding for macOS traffic lights */
   border-bottom: 1px solid #3c4043;
-  -webkit-app-region: drag; /* Make tab bar draggable */
+  -webkit-app-region: drag;
+  /* Make tab bar draggable */
 }
 
 .tab-bar.maximized {
-  padding-left: 4px; /* Remove traffic light padding when maximized */
+  padding-left: 4px;
+  /* Remove traffic light padding when maximized */
 }
 
 .tab-bar::-webkit-scrollbar {
@@ -247,7 +251,8 @@ body {
   height: 100%;
   gap: 2px;
   padding: 0 5px;
-  -webkit-app-region: no-drag; /* Make tabs clickable, not draggable */
+  -webkit-app-region: no-drag;
+  /* Make tabs clickable, not draggable */
 }
 
 .tab {
@@ -265,7 +270,14 @@ body {
   border: none;
   margin-right: 1px;
   position: relative;
-  -webkit-app-region: no-drag; /* Tabs are clickable */
+  -webkit-app-region: no-drag;
+  /* Tabs are clickable */
+}
+
+.tab.pinned {
+  min-width: 36px;
+  max-width: 120px;
+  padding: 0 8px;
 }
 
 .tab:hover {
@@ -295,6 +307,13 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   color: #9aa0a6;
+}
+
+.tab-group-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .tab.active .tab-title {
@@ -345,7 +364,40 @@ body {
   justify-content: center;
   margin-left: 4px;
   font-weight: normal;
-  -webkit-app-region: no-drag; /* New tab button is clickable */
+  -webkit-app-region: no-drag;
+  /* New tab button is clickable */
+}
+
+.tab-menu {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab-pin {
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: transparent;
+  color: #9aa0a6;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.tab-pin:hover {
+  background: #5f6368;
+  color: #e8eaed;
+}
+
+.tab-group-select {
+  height: 22px;
+  background: #3c4043;
+  color: #e8eaed;
+  border: 1px solid #5f6368;
+  border-radius: 4px;
+  font-size: 12px;
 }
 
 .new-tab-button:hover {
@@ -376,6 +428,7 @@ body {
   from {
     transform: translateX(100%);
   }
+
   to {
     transform: translateX(0);
   }
@@ -566,6 +619,7 @@ body {
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -654,6 +708,7 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -781,6 +836,7 @@ body {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -844,9 +900,12 @@ body {
 }
 
 @keyframes shimmer {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.7;
   }
@@ -889,20 +948,20 @@ body {
   .navigation-bar {
     padding: 0 10px;
   }
-  
+
   .sidebar {
     width: 300px;
   }
-  
+
   .download-manager {
     width: 350px;
     right: 10px;
   }
-  
+
   .find-in-page {
     right: 10px;
   }
-  
+
   .find-input {
     width: 200px;
   }

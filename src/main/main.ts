@@ -8,6 +8,16 @@ let activeTabId: number = 0;
 let nextTabId: number = 1;
 let dbManager: DatabaseManager;
 let resizeTimeout: NodeJS.Timeout | null = null;
+// Tab metadata: pinning and grouping
+const pinnedTabs: Set<number> = new Set();
+const tabToGroupId: Map<number, string> = new Map();
+const groups: Map<string, { id: string; name: string; color: string }> = new Map([
+  ['grp-red', { id: 'grp-red', name: 'Red', color: '#f28b82' }],
+  ['grp-orange', { id: 'grp-orange', name: 'Orange', color: '#fbbc04' }],
+  ['grp-green', { id: 'grp-green', name: 'Green', color: '#81c995' }],
+  ['grp-blue', { id: 'grp-blue', name: 'Blue', color: '#8ab4f8' }],
+  ['grp-purple', { id: 'grp-purple', name: 'Purple', color: '#c58af9' }],
+]);
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -175,7 +185,7 @@ function createWindow() {
         console.error('Error cleaning up browser view:', e);
       }
     });
-    
+
     mainWindow = null;
     browserViews.clear();
   });
@@ -232,7 +242,7 @@ function createNewTab(url: string = 'https://www.google.com'): number {
   });
 
   browserViews.set(tabId, browserView);
-  
+
   // Add crash handlers
   browserView.webContents.on('render-process-gone', (event, details) => {
     console.error(`Tab ${tabId} crashed:`, details);
@@ -253,7 +263,7 @@ function createNewTab(url: string = 'https://www.google.com'): number {
   browserView.webContents.on('responsive', () => {
     console.log(`Tab ${tabId} became responsive again`);
   });
-  
+
   // Listen for navigation events
   browserView.webContents.on('did-start-loading', () => {
     if (activeTabId === tabId && mainWindow && !mainWindow.isDestroyed()) {
@@ -294,14 +304,14 @@ function createNewTab(url: string = 'https://www.google.com'): number {
   browserView.webContents.session.on('will-download', (_event, item, webContents) => {
     const fileName = item.getFilename();
     const totalBytes = item.getTotalBytes();
-    
+
     // Let user choose save location
     dialog.showSaveDialog(mainWindow!, {
       defaultPath: path.join(app.getPath('downloads'), fileName)
     }).then(result => {
       if (!result.canceled && result.filePath) {
         item.setSavePath(result.filePath);
-        
+
         // Send download started event
         mainWindow?.webContents.send('download-started', {
           fileName,
@@ -444,19 +454,19 @@ function createNewTab(url: string = 'https://www.google.com'): number {
   });
 
   browserView.webContents.loadURL(url);
-  
+
   // Switch to the new tab
   switchToTab(tabId);
-  
+
   // Notify renderer about new tab
   mainWindow?.webContents.send('tab-created', tabId, url);
-  
+
   return tabId;
 }
 
 function switchToTab(tabId: number) {
   if (!mainWindow) return;
-  
+
   const browserView = browserViews.get(tabId);
   if (!browserView) return;
 
@@ -470,7 +480,7 @@ function switchToTab(tabId: number) {
   activeTabId = tabId;
   mainWindow.setBrowserView(browserView);
   updateBrowserViewBounds();
-  
+
   // Send current tab info to renderer
   const url = browserView.webContents.getURL();
   const title = browserView.webContents.getTitle();
@@ -479,7 +489,7 @@ function switchToTab(tabId: number) {
 
 function updateBrowserViewBounds() {
   if (!mainWindow) return;
-  
+
   const browserView = browserViews.get(activeTabId);
   if (!browserView) return;
 
@@ -487,11 +497,11 @@ function updateBrowserViewBounds() {
     const bounds = mainWindow.getBounds();
     // Navigation bar (48px) + Tab bar (36px) = 84px
     const topOffset = 84;
-    browserView.setBounds({ 
-      x: 0, 
+    browserView.setBounds({
+      x: 0,
       y: topOffset,
-      width: bounds.width, 
-      height: bounds.height - topOffset 
+      width: bounds.width,
+      height: bounds.height - topOffset
     });
   } catch (error) {
     console.error('Error updating browser view bounds:', error);
@@ -530,6 +540,8 @@ function closeTab(tabId: number) {
   }
 
   browserViews.delete(tabId);
+  pinnedTabs.delete(tabId);
+  tabToGroupId.delete(tabId);
 
   // If no tabs left, create a new one
   if (browserViews.size === 0) {
@@ -554,12 +566,12 @@ async function saveHistory(url: string) {
 ipcMain.handle('navigate', async (_event: any, url: string) => {
   const browserView = browserViews.get(activeTabId);
   if (!browserView) return;
-  
+
   // Add protocol if missing
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
     url = 'https://' + url;
   }
-  
+
   browserView.webContents.loadURL(url);
   return url;
 });
@@ -605,9 +617,58 @@ ipcMain.handle('get-tabs', () => {
     id,
     url: view.webContents.getURL(),
     title: view.webContents.getTitle(),
-    isActive: id === activeTabId
+    isActive: id === activeTabId,
+    isPinned: pinnedTabs.has(id),
+    groupId: tabToGroupId.get(id) || null
   }));
+  // Sort: pinned first, then others; within each, stable by id
+  tabs.sort((a, b) => {
+    if (a.isPinned && !b.isPinned) return -1;
+    if (!a.isPinned && b.isPinned) return 1;
+    return a.id - b.id;
+  });
   return tabs;
+});
+
+// Pin and Group IPC
+ipcMain.handle('pin-tab', (_event: any, tabId: number) => {
+  if (browserViews.has(tabId)) {
+    pinnedTabs.add(tabId);
+    mainWindow?.webContents.send('tab-updated', tabId, { isPinned: true });
+  }
+});
+
+ipcMain.handle('unpin-tab', (_event: any, tabId: number) => {
+  if (browserViews.has(tabId)) {
+    pinnedTabs.delete(tabId);
+    mainWindow?.webContents.send('tab-updated', tabId, { isPinned: false });
+  }
+});
+
+ipcMain.handle('toggle-pin-tab', (_event: any, tabId: number) => {
+  if (!browserViews.has(tabId)) return false;
+  if (pinnedTabs.has(tabId)) {
+    pinnedTabs.delete(tabId);
+  } else {
+    pinnedTabs.add(tabId);
+  }
+  const isPinned = pinnedTabs.has(tabId);
+  mainWindow?.webContents.send('tab-updated', tabId, { isPinned });
+  return isPinned;
+});
+
+ipcMain.handle('set-tab-group', (_event: any, tabId: number, groupId: string | null) => {
+  if (!browserViews.has(tabId)) return;
+  if (groupId && groups.has(groupId)) {
+    tabToGroupId.set(tabId, groupId);
+  } else {
+    tabToGroupId.delete(tabId);
+  }
+  mainWindow?.webContents.send('tab-updated', tabId, { groupId: groupId || null });
+});
+
+ipcMain.handle('get-tab-groups', () => {
+  return Array.from(groups.values());
 });
 
 // New Chrome-like features
@@ -765,7 +826,7 @@ app.on('ready', async () => {
   // Initialize database
   dbManager = new DatabaseManager();
   await dbManager.initialize();
-  
+
   createWindow();
 });
 

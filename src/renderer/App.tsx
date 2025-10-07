@@ -24,6 +24,8 @@ interface Tab {
   title: string;
   url: string;
   isActive: boolean;
+  isPinned?: boolean;
+  groupId?: string | null;
 }
 
 const App: React.FC = () => {
@@ -35,6 +37,7 @@ const App: React.FC = () => {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [tabs, setTabs] = useState<Tab[]>([]);
+  const [groups, setGroups] = useState<Array<{ id: string; name: string; color: string }>>([]);
   const [showFindInPage, setShowFindInPage] = useState<boolean>(false);
   const [isMaximized, setIsMaximized] = useState<boolean>(false);
 
@@ -92,11 +95,17 @@ const App: React.FC = () => {
     loadBookmarks();
     loadHistory();
     loadTabs();
+    loadGroups();
   }, []);
 
   const loadTabs = async () => {
     const tabsData = await window.electronAPI.getTabs();
     setTabs(tabsData);
+  };
+
+  const loadGroups = async () => {
+    const groupData = await window.electronAPI.getGroups();
+    setGroups(groupData);
   };
 
   const loadBookmarks = async () => {
@@ -170,6 +179,16 @@ const App: React.FC = () => {
     await window.electronAPI.switchTab(tabId);
   };
 
+  const handleTogglePin = async (tabId: number) => {
+    await window.electronAPI.togglePinTab(tabId);
+    await loadTabs();
+  };
+
+  const handleAssignGroup = async (tabId: number, groupId: string | null) => {
+    await window.electronAPI.setTabGroup(tabId, groupId);
+    await loadTabs();
+  };
+
   return (
     <div className="app">
       <TabBar
@@ -177,6 +196,9 @@ const App: React.FC = () => {
         onNewTab={handleNewTab}
         onCloseTab={handleCloseTab}
         onSwitchTab={handleSwitchTab}
+        onTogglePin={handleTogglePin}
+        onAssignGroup={handleAssignGroup}
+        groups={groups}
         isMaximized={isMaximized}
       />
       <NavigationBar
@@ -190,9 +212,9 @@ const App: React.FC = () => {
         onToggleBookmarks={() => toggleSidebar('bookmarks')}
         onToggleHistory={() => toggleSidebar('history')}
       />
-      <FindInPage 
-        isVisible={showFindInPage} 
-        onClose={() => setShowFindInPage(false)} 
+      <FindInPage
+        isVisible={showFindInPage}
+        onClose={() => setShowFindInPage(false)}
       />
       <DownloadManager />
       {showSidebar && (
