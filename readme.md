@@ -1,114 +1,70 @@
-# Probe Browser 🚀
+# Probe Browser
 
-A modern, Chrome-inspired web browser built with Electron, React, and TypeScript.
-
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![License](https://img.shields.io/badge/license-ISC-green.svg)
+A Chrome-like browser built with Electron, React, and TypeScript.
 
 ---
 
-## ✨ Features
+## Features
 
-- 🌐 **Full Web Browsing** - Chromium-powered rendering engine
-- 📑 **Multi-Tab Support** - Browse multiple pages simultaneously  
-- 📚 **Bookmarks & History** - Save favorites and track browsing
-- 🎨 **Chrome Dark Theme** - Familiar, polished UI
-- ⌨️ **Keyboard Shortcuts** - Power user features (Cmd+T, Cmd+F, etc.)
-- 🔍 **Find in Page** - Quick text search
-- 💾 **Download Manager** - Track file downloads
-- 🛠️ **DevTools** - Built-in Chrome DevTools
+- Multi-tab browsing with Chromium engine
+- Bookmarks and history (stored in MySQL)
+- Chrome dark theme
+- Keyboard shortcuts
+- Download manager
+- Built-in DevTools
 
 ---
 
-## 🚀 Quick Start
+## Setup
 
-### Prerequisites
+**Requirements:**
 - Node.js 18+
-- npm 9+
 - MySQL 8+
 
-### Installation
-
-\`\`\`bash
-# Clone repository
+**Install:**
+```bash
 git clone https://github.com/mrgear111/probe.git
 cd probe
-
-# Install dependencies
 npm install
+```
 
-# Configure MySQL (edit src/main/database.ts)
-# Default password: '12345678'
+**Configure MySQL** in `src/main/database.ts` (default password: `12345678`)
 
-# Build and run
+**Run:**
+```bash
 npm run build
 npm start
-\`\`\`
+```
 
 ---
 
-## ⌨️ Keyboard Shortcuts
+## Keyboard Shortcuts
 
-| Shortcut | Action |
-|----------|--------|
-| \`Cmd/Ctrl + T\` | New Tab |
-| \`Cmd/Ctrl + W\` | Close Tab |
-| \`Cmd/Ctrl + R\` | Reload |
-| \`Cmd/Ctrl + F\` | Find in Page |
-| \`Cmd/Ctrl + D\` | Bookmark |
-| \`F12\` | DevTools |
+- `Cmd/Ctrl + T` - New tab
+- `Cmd/Ctrl + W` - Close tab
+- `Cmd/Ctrl + R` - Reload
+- `Cmd/Ctrl + F` - Find in page
+- `Cmd/Ctrl + D` - Bookmark
+- `F12` - DevTools
 
 ---
 
-## 📦 Build & Package
+## Package
 
-\`\`\`bash
-# Development
-npm run dev
-
-# Production build
-npm run build
-npm start
-
-# Package for distribution
+```bash
 npm run package:mac    # macOS
 npm run package:win    # Windows
 npm run package:linux  # Linux
-\`\`\`
+```
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-- **Electron 27** - Desktop framework
-- **React 18** - UI library
-- **TypeScript 5** - Type safety
-- **MySQL2** - Database
-- **Webpack 5** - Bundler
+Electron 27, React 18, TypeScript 5, MySQL2, Webpack 5
 
 ---
 
-## 📁 Project Structure
-
-\`\`\`
-src/
-├── main/              # Electron main process
-│   ├── main.ts       # Window & tab management
-│   ├── database.ts   # MySQL operations
-│   └── preload.ts    # IPC bridge
-├── renderer/          # React UI
-│   ├── components/   # UI components
-│   ├── App.tsx       # Root component
-│   └── styles.css    # Styles
-└── types/            # TypeScript definitions
-\`\`\`
-
----
-
-## 📝 License
+## License
 
 ISC
-
----
-
-**⭐ Star this repo if you find it useful!**
