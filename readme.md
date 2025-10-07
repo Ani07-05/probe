@@ -1,143 +1,267 @@
-# Probe Browser
+# Probe Browser 🚀
 
-A modern Electron-based web browser built with React, TypeScript, and MySQL.
+A modern, Chrome-inspired web browser built with **Electron**, **React**, and **TypeScript**.
 
-## Features
+![Probe Browser](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![License](https://img.shields.io/badge/license-ISC-green.svg)
+![Electron](https://img.shields.io/badge/Electron-27.3.11-47848F.svg)
+![React](https://img.shields.io/badge/React-18.2.0-61DAFB.svg)
 
-- 🌐 Full web browsing capabilities powered by Chromium
-- ⚡ Built with Electron + React + TypeScript
-- 🗄️ MySQL database for bookmarks and history
-- 📚 Bookmark management
-- 🕐 Browsing history tracking
-- 🎨 Modern, gradient UI design
-- ⌨️ Keyboard navigation support
+---
 
-## Prerequisites
+## ✨ Features
 
-Before running the application, make sure you have:
+### 🌐 Core Browsing
+- **Full Chromium Engine** - Fast, reliable web rendering
+- **Multi-Tab Support** - Browse multiple pages simultaneously
+- **Chrome-like UI** - Dark theme with familiar navigation
+- **Smart URL Bar** - Auto-detects and adds protocols
 
-1. **Node.js** (v16 or higher) ✅
-2. **MySQL** installed and running locally
-   - Default connection: `localhost:3306`
-   - Username: `root`
-   - Password: `` (empty) - Update in `src/main/database.ts` if different
+### � Data Management
+- **Bookmarks System** - Save and organize favorite sites
+- **Browsing History** - Track visited pages with timestamps
+- **MySQL Database** - Persistent local storage
+- **Search & Filter** - Quick access to saved data
 
-## Installation
+### 🎨 User Experience
+- **Dark Theme** - Chrome-exact color scheme (#202124)
+- **Traffic Light Controls** - Native macOS window controls
+- **Smooth Animations** - Polished UI transitions
+- **Keyboard Shortcuts** - Power user features
+- **Find in Page** - Quick text search (Cmd+F)
+- **Download Manager** - Track file downloads
 
-Dependencies are already installed! ✅
+### 🛠️ Developer Features
+- **DevTools Integration** - Built-in Chrome DevTools
+- **Context Menus** - Right-click functionality
+- **View Source** - Inspect page HTML
+- **Zoom Controls** - Adjust page magnification
 
-Make sure MySQL is running on your system. The application will automatically create the `probe_browser` database and required tables on first run.
+---
 
-## Database Configuration
+## 🔧 Prerequisites
 
-Update MySQL credentials in `src/main/database.ts` if needed:
+| Requirement | Version | Notes |
+|------------|---------|-------|
+| **Node.js** | 18+ | JavaScript runtime |
+| **npm** | 9+ | Package manager |
+| **MySQL** | 8+ | Database server |
 
+---
+
+## 📦 Installation
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/mrgear111/probe.git
+cd probe
+```
+
+### 2. Install Dependencies
+```bash
+npm install
+```
+
+### 3. Configure Database
+Update MySQL credentials in `src/main/database.ts`:
 ```typescript
 this.connection = await mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: '', // Change this to your MySQL password
+  password: '12345678', // Change to your MySQL password
   database: 'probe_browser',
 });
 ```
 
-## Running the Application
+The database and tables will be created automatically on first run.
 
-### Development Mode
-
-1. Start the development build (in one terminal):
+### 4. Build the Application
 ```bash
-npm run dev
+npm run build
 ```
 
-2. Start Electron (in another terminal):
+### 5. Launch
 ```bash
+npm start
+```
+
+---
+
+## 🚀 Usage
+
+### Development Mode
+```bash
+# Terminal 1: Start webpack dev server
+npm run dev
+
+# Terminal 2: Launch Electron
 npm start
 ```
 
 ### Production Build
-
-Build and run:
 ```bash
+# Build all bundles
 npm run build
+
+# Run the app
 npm start
 ```
 
-Package as a distributable app:
+### Package for Distribution
 ```bash
-npm run package
+# macOS
+npm run package:mac
+
+# Windows
+npm run package:win
+
+# Linux
+npm run package:linux
 ```
 
-## Project Structure
+---
+
+## ⌨️ Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Cmd/Ctrl + T` | New Tab |
+| `Cmd/Ctrl + W` | Close Tab |
+| `Cmd/Ctrl + R` | Reload Page |
+| `Cmd/Ctrl + F` | Find in Page |
+| `Cmd/Ctrl + L` | Focus URL Bar |
+| `Cmd/Ctrl + D` | Add Bookmark |
+| `Cmd/Ctrl + H` | View History |
+| `Cmd/Ctrl + Shift + B` | View Bookmarks |
+| `Cmd/Ctrl + Shift + R` | Hard Reload |
+| `Cmd/Ctrl + 1-9` | Switch to Tab |
+| `F12` | Toggle DevTools |
+
+---
+
+## 📁 Project Structure
 
 ```
 probe/
 ├── src/
-│   ├── main/           # Electron main process
-│   │   ├── main.ts     # Main process entry point
-│   │   ├── database.ts # MySQL database manager
-│   │   └── preload.ts  # Preload script for IPC
-│   ├── renderer/       # React renderer process
-│   │   ├── components/ # React components
-│   │   ├── App.tsx     # Main React component
-│   │   ├── index.tsx   # Renderer entry point
-│   │   ├── index.html  # HTML template
-│   │   └── styles.css  # Application styles
-│   └── types/          # TypeScript type definitions
-├── dist/               # Compiled output
-├── webpack.*.config.js # Webpack configurations
-├── tsconfig.json       # TypeScript configuration
-└── package.json        # Project dependencies
+│   ├── main/                      # Electron Main Process
+│   │   ├── main.ts               # Window & IPC management
+│   │   ├── database.ts           # MySQL operations
+│   │   └── preload.ts            # IPC bridge
+│   │
+│   ├── renderer/                  # React UI
+│   │   ├── components/           # React components
+│   │   │   ├── TabBar.tsx       # Tab management
+│   │   │   ├── NavigationBar.tsx # URL bar & controls
+│   │   │   ├── Sidebar.tsx       # Bookmarks/History
+│   │   │   ├── FindInPage.tsx    # Search overlay
+│   │   │   └── DownloadManager.tsx
+│   │   ├── App.tsx               # Root component
+│   │   ├── index.tsx             # Entry point
+│   │   └── styles.css            # Global styles
+│   │
+│   └── types/                     # TypeScript definitions
+│       └── electron.d.ts
+│
+├── dist/                          # Compiled output
+├── webpack.*.config.js            # Build configs
+└── package.json                   # Dependencies
 ```
 
-## Technologies Used
+---
 
-- **Electron** - Desktop application framework
-- **React** - UI library
-- **TypeScript** - Type-safe JavaScript
-- **MySQL2** - MySQL database driver
-- **Webpack** - Module bundler
-- **Chromium** - Web rendering engine (bundled with Electron)
-- **Node.js** - JavaScript runtime
+## 🛠️ Tech Stack
 
-## Features Overview
+| Technology | Purpose |
+|-----------|---------|
+| **Electron 27** | Desktop framework |
+| **React 18** | UI library |
+| **TypeScript 5** | Type safety |
+| **Webpack 5** | Module bundler |
+| **MySQL2** | Database driver |
+| **Chromium** | Web engine |
 
-### Navigation
-- ← → Back/Forward buttons
-- URL bar with auto-protocol detection (automatically adds https://)
-- ↻ Reload functionality
-- Loading indicator with animation
+---
 
-### Bookmarks
-- ★ Add current page to bookmarks
-- 📚 View all bookmarks in sidebar
-- 🗑️ Delete bookmarks
-- Click to navigate to bookmarked pages
-- Timestamps for when bookmarks were created
+## 🎨 Design
 
-### History
-- 🕐 Automatic history tracking
-- View recent browsing history (last 100 visits)
-- Clear all history option
-- Click to revisit pages
-- Timestamps for each visit
+### Color Palette (Chrome Dark Theme)
+- **Background**: `#202124`
+- **Surface**: `#292a2d`
+- **Input**: `#303134`
+- **Border**: `#3c4043`
+- **Accent**: `#8ab4f8`
+- **Text**: `#e8eaed`
 
-## UI Features
+### Layout
+- **Tab Bar**: 36px height, 80px left padding (for traffic lights)
+- **Navigation Bar**: 48px height
+- **Total UI Height**: 84px
+- **BrowserView Offset**: Positioned below UI at Y=84px
 
-- Beautiful gradient purple theme
-- Smooth animations and transitions
-- Sidebar with bookmarks and history
-- Responsive button states with hover effects
-- Loading indicators
-- Clean, modern design
+---
 
-## Notes
+## 📊 Database Schema
 
-- The browser view is positioned below the navigation bar (80px from top)
-- All navigation events are automatically tracked in the history
-- URLs without protocols automatically get `https://` prepended
-- The database connection errors are logged to the console for debugging
+### Tables
 
-## License
+**bookmarks**
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INT | Auto-increment primary key |
+| url | TEXT | Bookmarked URL |
+| title | VARCHAR(255) | Page title |
+| created_at | TIMESTAMP | Creation timestamp |
 
-ISC
+**history**
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INT | Auto-increment primary key |
+| url | TEXT | Visited URL |
+| title | VARCHAR(255) | Page title |
+| visited_at | TIMESTAMP | Visit timestamp |
+
+---
+
+## 🐛 Known Issues
+
+- **macOS Only**: Traffic lights optimized for macOS (Windows/Linux support in progress)
+- **MySQL Required**: Database must be running for bookmarks/history
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] Light theme support
+- [ ] Tab drag-and-drop reordering
+- [ ] Session restore
+- [ ] Extensions support
+- [ ] Multi-platform testing
+- [ ] Password manager
+- [ ] Reading mode
+- [ ] Screenshot tool
+
+---
+
+## 📝 License
+
+ISC License - see LICENSE file for details
+
+---
+
+## 👨‍💻 Author
+
+**mrgear111**
+- GitHub: [@mrgear111](https://github.com/mrgear111)
+
+---
+
+## 🙏 Acknowledgments
+
+- Built with Electron's powerful framework
+- Inspired by Google Chrome's design
+- Chromium engine for web rendering
+
+---
+
+**⭐ Star this repo if you find it useful!**
