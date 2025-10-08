@@ -8,6 +8,7 @@ let activeTabId: number = 0;
 let nextTabId: number = 1;
 let dbManager: DatabaseManager;
 let resizeTimeout: NodeJS.Timeout | null = null;
+let activeOverlays: Set<string> = new Set(); // Track which overlays are visible
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -290,54 +291,7 @@ function createNewTab(url: string = 'https://www.google.com'): number {
     }
   });
 
-  // Handle downloads
-  browserView.webContents.session.on('will-download', (_event, item, webContents) => {
-    const fileName = item.getFilename();
-    const totalBytes = item.getTotalBytes();
-    
-    // Let user choose save location
-    dialog.showSaveDialog(mainWindow!, {
-      defaultPath: path.join(app.getPath('downloads'), fileName)
-    }).then(result => {
-      if (!result.canceled && result.filePath) {
-        item.setSavePath(result.filePath);
-        
-        // Send download started event
-        mainWindow?.webContents.send('download-started', {
-          fileName,
-          totalBytes,
-          savePath: result.filePath
-        });
-
-        item.on('updated', (_event, state) => {
-          if (state === 'interrupted') {
-            mainWindow?.webContents.send('download-failed', fileName);
-          } else if (state === 'progressing') {
-            const percent = (item.getReceivedBytes() / totalBytes) * 100;
-            mainWindow?.webContents.send('download-progress', {
-              fileName,
-              percent: percent.toFixed(1),
-              receivedBytes: item.getReceivedBytes(),
-              totalBytes
-            });
-          }
-        });
-
-        item.once('done', (_event, state) => {
-          if (state === 'completed') {
-            mainWindow?.webContents.send('download-completed', {
-              fileName,
-              savePath: item.getSavePath()
-            });
-          } else {
-            mainWindow?.webContents.send('download-failed', fileName);
-          }
-        });
-      } else {
-        item.cancel();
-      }
-    });
-  });
+  // Note: Download handler is now set up globally in app.on('ready')
 
   // Handle context menu
   browserView.webContents.on('context-menu', (_event, params) => {
@@ -479,7 +433,7 @@ function switchToTab(tabId: number) {
 
 function updateBrowserViewBounds() {
   if (!mainWindow) return;
-  
+
   const browserView = browserViews.get(activeTabId);
   if (!browserView) return;
 
@@ -487,11 +441,22 @@ function updateBrowserViewBounds() {
     const bounds = mainWindow.getBounds();
     // Navigation bar (48px) + Tab bar (36px) = 84px
     const topOffset = 84;
-    browserView.setBounds({ 
-      x: 0, 
+
+    // Set BrowserView to cover the entire area below navigation
+    // The overlays will be handled differently - they should always be on top
+    browserView.setBounds({
+      x: 0,
       y: topOffset,
-      width: bounds.width, 
-      height: bounds.height - topOffset 
+      width: bounds.width,
+      height: bounds.height - topOffset
+    });
+
+    // Set auto resize to keep BrowserView in sync
+    browserView.setAutoResize({
+      width: true,
+      height: true,
+      horizontal: false,
+      vertical: false
     });
   } catch (error) {
     console.error('Error updating browser view bounds:', error);
@@ -702,6 +667,79 @@ ipcMain.handle('get-can-go-forward', () => {
   return browserView?.webContents.canGoForward() || false;
 });
 
+// Overlay management - adjust BrowserView to make space for overlays
+ipcMain.handle('set-overlay-visible', (_event: any, overlayType: string, visible: boolean, bounds?: { width?: number; height?: number }) => {
+  if (!mainWindow) return { success: false };
+
+  const browserView = browserViews.get(activeTabId);
+  if (!browserView) return { success: false };
+
+  if (visible) {
+    activeOverlays.add(overlayType);
+  } else {
+    activeOverlays.delete(overlayType);
+  }
+
+  try {
+    const windowBounds = mainWindow.getBounds();
+    const topOffset = 84; // Tab bar + Nav bar
+
+    // Calculate the right-side cutoff for overlays
+    let rightCutoff = 0;
+    let topCutoff = 0;
+
+    if (activeOverlays.has('download-manager')) {
+      rightCutoff = Math.max(rightCutoff, 340); // Download manager width + margin (320 + 20)
+      topCutoff = Math.max(topCutoff, 200); // Download manager height (180 + 20)
+    }
+    if (activeOverlays.has('find-in-page')) {
+      rightCutoff = Math.max(rightCutoff, 350); // Find in page width
+      topCutoff = Math.max(topCutoff, 60); // Find in page height
+    }
+    if (activeOverlays.has('zoom-popup')) {
+      rightCutoff = Math.max(rightCutoff, 200); // Zoom popup area
+      topCutoff = Math.max(topCutoff, 100); // Zoom popup from top
+    }
+    if (activeOverlays.has('sidebar')) {
+      rightCutoff = Math.max(rightCutoff, 350); // Sidebar width
+    }
+
+    // Adjust BrowserView to avoid overlay area
+    if (activeOverlays.size > 0) {
+      // Shrink width from right side OR reduce height from top
+      if (activeOverlays.has('sidebar') || activeOverlays.has('download-manager')) {
+        // Right-side overlays: reduce width
+        browserView.setBounds({
+          x: 0,
+          y: topOffset,
+          width: Math.max(400, windowBounds.width - rightCutoff),
+          height: windowBounds.height - topOffset
+        });
+      } else {
+        // Top overlays: reduce height slightly
+        browserView.setBounds({
+          x: 0,
+          y: topOffset + topCutoff,
+          width: windowBounds.width,
+          height: windowBounds.height - topOffset - topCutoff
+        });
+      }
+    } else {
+      // Restore full bounds
+      browserView.setBounds({
+        x: 0,
+        y: topOffset,
+        width: windowBounds.width,
+        height: windowBounds.height - topOffset
+      });
+    }
+  } catch (error) {
+    console.error('Error adjusting BrowserView for overlay:', error);
+  }
+
+  return { success: true };
+});
+
 ipcMain.handle('add-bookmark', async (_event: any, url: string, title: string) => {
   try {
     if (!dbManager || !dbManager['connection']) {
@@ -765,6 +803,59 @@ app.on('ready', async () => {
   // Initialize database
   dbManager = new DatabaseManager();
   await dbManager.initialize();
+  
+  // Set up global download handler (once for all tabs)
+  const { session } = require('electron');
+  session.defaultSession.on('will-download', (_event: any, item: any, webContents: any) => {
+    const fileName = item.getFilename();
+    const totalBytes = item.getTotalBytes();
+    
+    // Let user choose save location
+    dialog.showSaveDialog(mainWindow!, {
+      defaultPath: path.join(app.getPath('downloads'), fileName)
+    }).then(result => {
+      if (!result.canceled && result.filePath) {
+        item.setSavePath(result.filePath);
+        
+        // Send download started event
+        mainWindow?.webContents.send('download-started', {
+          fileName,
+          totalBytes,
+          savePath: result.filePath
+        });
+
+        item.on('updated', (_event: any, state: string) => {
+          if (state === 'interrupted') {
+            mainWindow?.webContents.send('download-failed', fileName);
+          } else if (state === 'progressing') {
+            const percent = (item.getReceivedBytes() / totalBytes) * 100;
+            mainWindow?.webContents.send('download-progress', {
+              fileName,
+              percent: percent.toFixed(1),
+              receivedBytes: item.getReceivedBytes(),
+              totalBytes
+            });
+          }
+        });
+
+        item.once('done', (_event: any, state: string) => {
+          if (state === 'completed') {
+            mainWindow?.webContents.send('download-completed', {
+              fileName,
+              savePath: item.getSavePath()
+            });
+          } else {
+            mainWindow?.webContents.send('download-failed', fileName);
+          }
+        });
+      } else {
+        item.cancel();
+      }
+    }).catch(err => {
+      console.error('Download dialog error:', err);
+      item.cancel();
+    });
+  });
   
   createWindow();
 });

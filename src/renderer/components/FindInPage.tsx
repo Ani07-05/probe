@@ -16,6 +16,11 @@ const FindInPage: React.FC<FindInPageProps> = ({ isVisible, onClose }) => {
     }
   }, [isVisible]);
 
+  // Notify main process about visibility changes
+  useEffect(() => {
+    window.electronAPI.setOverlayVisible('find-in-page', isVisible);
+  }, [isVisible]);
+
   const handleSearch = (text: string) => {
     setSearchText(text);
     if (text) {

@@ -37,6 +37,15 @@ const App: React.FC = () => {
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [showFindInPage, setShowFindInPage] = useState<boolean>(false);
   const [isMaximized, setIsMaximized] = useState<boolean>(false);
+  const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
+  const [hasActiveDownloads, setHasActiveDownloads] = useState<boolean>(false);
+  const [recentDownloadName, setRecentDownloadName] = useState<string | null>(null);
+  const [showDownloadManager, setShowDownloadManager] = useState<boolean>(false);
+
+  // Notify main process about sidebar visibility
+  useEffect(() => {
+    window.electronAPI.setOverlayVisible('sidebar', showSidebar);
+  }, [showSidebar]);
 
   useEffect(() => {
     // Set up event listeners
@@ -86,6 +95,39 @@ const App: React.FC = () => {
 
     window.electronAPI.onAddBookmarkRequest((url: string, title: string) => {
       handleAddBookmark(url, title);
+    });
+
+    // Listen for download events to update progress
+    window.electronAPI.onDownloadStarted((info: any) => {
+      setDownloadProgress(0);
+      setHasActiveDownloads(true);
+      setRecentDownloadName(info.fileName);
+      setShowDownloadManager(true);
+    });
+
+    window.electronAPI.onDownloadProgress((info: any) => {
+      const progress = parseFloat(info.percent);
+      setDownloadProgress(progress);
+    });
+
+    window.electronAPI.onDownloadCompleted((info: any) => {
+      setDownloadProgress(100);
+      setRecentDownloadName(info.fileName);
+      // Keep the indicator visible
+      setTimeout(() => {
+        setDownloadProgress(null);
+      }, 2000);
+      // Keep download button highlighted for longer
+      setTimeout(() => {
+        setHasActiveDownloads(false);
+      }, 10000); // 10 seconds
+    });
+
+    window.electronAPI.onDownloadFailed(() => {
+      setDownloadProgress(null);
+      setTimeout(() => {
+        setHasActiveDownloads(false);
+      }, 3000);
     });
 
     // Load initial data
@@ -182,6 +224,9 @@ const App: React.FC = () => {
       <NavigationBar
         currentUrl={currentUrl}
         isLoading={isLoading}
+        downloadProgress={downloadProgress}
+        hasActiveDownloads={hasActiveDownloads}
+        recentDownloadName={recentDownloadName}
         onNavigate={handleNavigate}
         onBack={handleBack}
         onForward={handleForward}
@@ -189,12 +234,16 @@ const App: React.FC = () => {
         onAddBookmark={handleAddBookmark}
         onToggleBookmarks={() => toggleSidebar('bookmarks')}
         onToggleHistory={() => toggleSidebar('history')}
+        onToggleDownloads={() => setShowDownloadManager(!showDownloadManager)}
       />
       <FindInPage 
         isVisible={showFindInPage} 
         onClose={() => setShowFindInPage(false)} 
       />
-      <DownloadManager />
+      <DownloadManager 
+        isVisible={showDownloadManager}
+        onClose={() => setShowDownloadManager(false)}
+      />
       {showSidebar && (
         <Sidebar
           view={sidebarView}

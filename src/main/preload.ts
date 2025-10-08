@@ -93,4 +93,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onWindowStateChanged: (callback: (state: { maximized: boolean }) => void) => {
     ipcRenderer.on('window-state-changed', (_event: any, state: { maximized: boolean }) => callback(state));
   },
+
+  // Overlay management - notify main process to adjust BrowserView bounds
+  setOverlayVisible: (overlayType: string, visible: boolean, bounds?: { width?: number; height?: number }) =>
+    ipcRenderer.invoke('set-overlay-visible', overlayType, visible, bounds),
 });

@@ -31,8 +31,40 @@ body {
   gap: 8px;
   box-shadow: none;
   position: relative;
-  z-index: 999;
+  z-index: 1000;
   border-bottom: 1px solid #3c4043;
+}
+
+/* Chrome-style Download Progress Indicator */
+.nav-download-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  z-index: 1002;
+}
+
+.nav-download-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #1a73e8 0%, #4285f4 50%, #8ab4f8 100%);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 15px rgba(26, 115, 232, 0.8), 0 0 5px rgba(66, 133, 244, 0.6);
+  animation: downloadShimmer 1.5s ease-in-out infinite;
+  will-change: width;
+}
+
+@keyframes downloadShimmer {
+  0%, 100% {
+    opacity: 1;
+    filter: brightness(1.1);
+  }
+  50% {
+    opacity: 0.95;
+    filter: brightness(1.3);
+  }
 }
 
 .nav-controls {
@@ -227,7 +259,7 @@ body {
   overflow-y: hidden;
   box-shadow: none;
   position: relative;
-  z-index: 1000;
+  z-index: 1001;
   padding: 0 4px 0 80px; /* Left padding for macOS traffic lights */
   border-bottom: 1px solid #3c4043;
   -webkit-app-region: drag; /* Make tab bar draggable */
@@ -359,17 +391,18 @@ body {
 
 /* Sidebar - Dark Theme */
 .sidebar {
-  position: fixed;
-  top: 84px;
-  right: 0;
+  position: fixed !important;
+  top: 84px !important;
+  right: 0 !important;
   width: 350px;
   height: calc(100vh - 84px);
   background: #292a2d;
-  box-shadow: -2px 0 16px rgba(0, 0, 0, 0.5);
+  box-shadow: -2px 0 16px rgba(0, 0, 0, 0.8);
   display: flex;
   flex-direction: column;
-  z-index: 999;
+  z-index: 2147483647 !important;
   animation: slideIn 0.3s ease-out;
+  pointer-events: auto !important;
 }
 
 @keyframes slideIn {
@@ -546,19 +579,20 @@ body {
 
 /* Find in Page - Dark Theme */
 .find-in-page {
-  position: fixed;
-  top: 84px;
-  right: 15px;
+  position: fixed !important;
+  top: 84px !important;
+  right: 15px !important;
   background: #292a2d;
   padding: 10px 15px;
   border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8), 0 0 0 1px #5f6368;
   display: flex;
   gap: 8px;
   align-items: center;
-  z-index: 1001;
+  z-index: 2147483647 !important;
   animation: slideDown 0.2s ease-out;
   border: 1px solid #5f6368;
+  pointer-events: auto !important;
 }
 
 @keyframes slideDown {
@@ -633,26 +667,27 @@ body {
   color: #e8eaed;
 }
 
-/* Download Manager - Dark Theme */
+/* Download Manager - Chrome-style Dropdown */
 .download-manager {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 380px;
-  max-height: 400px;
+  position: fixed !important;
+  top: 84px !important;
+  right: 20px !important;
+  width: 320px;
+  max-height: 180px;
   background: #292a2d;
   border-radius: 8px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 0 1px #5f6368;
   overflow: hidden;
-  z-index: 2000;
-  animation: slideUp 0.3s ease-out;
+  z-index: 2147483647 !important;
+  animation: slideDown 0.2s ease-out;
   border: 1px solid #5f6368;
+  pointer-events: auto !important;
 }
 
-@keyframes slideUp {
+@keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(-10px);
   }
   to {
     opacity: 1;
@@ -664,12 +699,48 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 15px;
+  padding: 8px 12px;
   background: #292a2d;
   color: #e8eaed;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 13px;
   border-bottom: 1px solid #3c4043;
+}
+
+.download-header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.download-clear-all {
+  background: transparent;
+  border: none;
+  color: #8ab4f8;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.download-clear-all:hover {
+  background: rgba(138, 180, 248, 0.1);
+  color: #aecbfa;
+}
+
+.download-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  color: #9aa0a6;
+}
+
+.download-empty p {
+  margin-top: 8px;
+  font-size: 12px;
 }
 
 .download-close {
@@ -690,45 +761,75 @@ body {
 }
 
 .download-list {
-  max-height: 350px;
+  max-height: 120px;
   overflow-y: auto;
-  padding: 10px;
+  padding: 6px;
   background: #292a2d;
 }
 
 .download-item {
-  padding: 12px;
-  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  margin-bottom: 1px;
+  background: #292a2d;
+  border-bottom: 1px solid #3c4043;
+  transition: background 0.15s ease;
+  cursor: pointer;
+}
+
+.download-item:hover {
   background: #3c4043;
-  border-radius: 6px;
-  border-left: 3px solid #8ab4f8;
 }
 
 .download-item.completed {
-  border-left-color: #81c995;
+  background: #292a2d;
 }
 
 .download-item.failed {
-  border-left-color: #f28b82;
+  background: #292a2d;
+}
+
+.download-icon {
+  width: 24px;
+  height: 24px;
+  background: #3c4043;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.download-icon svg {
+  width: 16px;
+  height: 16px;
+  fill: #9aa0a6;
 }
 
 .download-info {
-  margin-bottom: 8px;
+  flex: 1;
+  min-width: 0;
 }
 
 .download-name {
-  font-weight: 500;
-  font-size: 13px;
+  font-weight: 400;
+  font-size: 12px;
   color: #e8eaed;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .download-status {
-  font-size: 12px;
+  font-size: 11px;
   color: #9aa0a6;
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .download-success {
@@ -753,7 +854,86 @@ body {
   color: #aecbfa;
 }
 
+.download-action-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: #9aa0a6;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.download-action-btn:hover {
+  background: #5f6368;
+  color: #e8eaed;
+}
+
 /* Old progress bar styles (keep for compatibility) */
+
+/* Chrome-style Download Button */
+.download-button {
+  position: relative;
+}
+
+.download-button.has-downloads {
+  color: #1a73e8 !important;
+}
+
+.download-button.has-downloads:hover {
+  color: #1a73e8 !important;
+  background: rgba(26, 115, 232, 0.1) !important;
+}
+
+.download-indicator {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  pointer-events: none;
+}
+
+.download-progress-circle {
+  width: 20px;
+  height: 20px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.download-complete-dot {
+  width: 8px;
+  height: 8px;
+  background: #1a73e8;
+  border-radius: 50%;
+  animation: completePulse 1s ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes completePulse {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
 
 /* Zoom Controls - Dark Theme */
 .zoom-controls {
@@ -761,19 +941,20 @@ body {
 }
 
 .zoom-popup {
-  position: absolute;
-  top: 40px;
-  right: 0;
+  position: fixed !important;
+  top: 130px !important;
+  right: 80px !important;
   background: #292a2d;
   border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), 0 0 0 1px #5f6368;
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  z-index: 1001;
+  z-index: 2147483647 !important;
   animation: fadeIn 0.2s ease-out;
   border: 1px solid #5f6368;
+  pointer-events: auto !important;
 }
 
 @keyframes fadeIn {
@@ -826,29 +1007,33 @@ body {
   pointer-events: none;
 }
 
-/* Download Progress Bar - Dark Theme */
+/* Download Progress Bar - Chrome Style (Thin bar below filename) */
 .download-progress {
-  height: 4px;
+  height: 2px;
   background: #3c4043;
-  border-radius: 2px;
+  border-radius: 1px;
   overflow: hidden;
-  margin-top: 8px;
+  margin-top: 2px;
+  width: 100%;
 }
 
 .download-progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #8ab4f8 0%, #aecbfa 100%);
-  border-radius: 2px;
-  transition: width 0.3s ease;
-  animation: shimmer 1.5s ease-in-out infinite;
+  background: #1a73e8;
+  border-radius: 1px;
+  transition: width 0.2s ease;
 }
 
-@keyframes shimmer {
+.download-progress-bar.downloading {
+  animation: progressPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes progressPulse {
   0%, 100% {
     opacity: 1;
   }
   50% {
-    opacity: 0.7;
+    opacity: 0.8;
   }
 }
 

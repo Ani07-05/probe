@@ -4,8 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Probe Browser</title>
+    <style>
+      /* Ensure overlay-root is always on top */
+      #overlay-root {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        z-index: 2147483647;
+      }
+
+      #overlay-root > * {
+        pointer-events: auto;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
+    <div id="overlay-root"></div>
   </body>
 </html>

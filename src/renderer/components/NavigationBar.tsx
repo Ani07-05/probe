@@ -3,6 +3,9 @@ import React, { useState, useEffect, useRef } from 'react';
 interface NavigationBarProps {
   currentUrl: string;
   isLoading: boolean;
+  downloadProgress: number | null;
+  hasActiveDownloads: boolean;
+  recentDownloadName: string | null;
   onNavigate: (url: string) => void;
   onBack: () => void;
   onForward: () => void;
@@ -10,11 +13,15 @@ interface NavigationBarProps {
   onAddBookmark: () => void;
   onToggleBookmarks: () => void;
   onToggleHistory: () => void;
+  onToggleDownloads: () => void;
 }
 
 const NavigationBar: React.FC<NavigationBarProps> = ({
   currentUrl,
   isLoading,
+  downloadProgress,
+  hasActiveDownloads,
+  recentDownloadName,
   onNavigate,
   onBack,
   onForward,
@@ -22,6 +29,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   onAddBookmark,
   onToggleBookmarks,
   onToggleHistory,
+  onToggleDownloads,
 }) => {
   const [urlInput, setUrlInput] = useState<string>(currentUrl);
   const [canGoBack, setCanGoBack] = useState(false);
@@ -75,12 +83,26 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
     setZoomLevel(Math.round((1 + level * 0.2) * 100));
   };
 
+  // Notify main process about zoom popup visibility changes
+  useEffect(() => {
+    window.electronAPI.setOverlayVisible('zoom-popup', showZoom);
+  }, [showZoom]);
+
   const toggleDevTools = () => {
     window.electronAPI.toggleDevTools();
   };
 
   return (
     <div className="navigation-bar">
+      {/* Chrome-style Download Progress Bar */}
+      {downloadProgress !== null && downloadProgress < 100 && (
+        <div className="nav-download-progress">
+          <div 
+            className="nav-download-progress-bar" 
+            style={{ width: `${downloadProgress}%` }}
+          />
+        </div>
+      )}
       <div className="nav-controls">
         <button 
           onClick={onBack} 
@@ -133,6 +155,49 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
       </form>
 
       <div className="nav-actions">
+        {/* Chrome-style Download Button */}
+        <button 
+          onClick={onToggleDownloads}
+          className={`nav-button download-button ${hasActiveDownloads ? 'has-downloads' : ''}`}
+          title={recentDownloadName ? `Recent: ${recentDownloadName}` : 'Downloads'}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 12L3 7h3V1h4v6h3l-5 5z"/>
+            <path d="M1 14h14v2H1z"/>
+          </svg>
+          {hasActiveDownloads && (
+            <div className="download-indicator">
+              {downloadProgress !== null && downloadProgress < 100 ? (
+                <div className="download-progress-circle">
+                  <svg width="20" height="20" viewBox="0 0 20 20">
+                    <circle 
+                      cx="10" 
+                      cy="10" 
+                      r="8" 
+                      fill="none" 
+                      stroke="#3c4043" 
+                      strokeWidth="2"
+                    />
+                    <circle 
+                      cx="10" 
+                      cy="10" 
+                      r="8" 
+                      fill="none" 
+                      stroke="#1a73e8" 
+                      strokeWidth="2"
+                      strokeDasharray={`${(downloadProgress / 100) * 50.24} 50.24`}
+                      strokeLinecap="round"
+                      transform="rotate(-90 10 10)"
+                    />
+                  </svg>
+                </div>
+              ) : (
+                <div className="download-complete-dot" />
+              )}
+            </div>
+          )}
+        </button>
+        
         <div className="zoom-controls">
           <button 
             onClick={() => setShowZoom(!showZoom)} 

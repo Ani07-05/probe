@@ -70,6 +70,9 @@ export interface ElectronAPI {
 
   // Window state events
   onWindowStateChanged: (callback: (state: { maximized: boolean }) => void) => void;
+
+  // Overlay management
+  setOverlayVisible: (overlayType: string, visible: boolean, bounds?: { width?: number; height?: number }) => Promise<{ success: boolean }>;
 }
 
 declare global {
